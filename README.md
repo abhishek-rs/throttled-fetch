@@ -1,6 +1,7 @@
 # throttled-fetch
 
-throttled-fetch is a wrapper that provides adaptive client-side throttling of requests on your client apps or servers that make frequent API calls to other upstream resources. By throttling requests that are likely to fail at the source, this library makes your overall service resilient to unexpected traffic surges that are harder to deal with through conventional methods like auto-scaling and load-shedding at the server.
+throttled-fetch is a fetch utility that provides adaptive client-side throttling of outgoing requests on your client app or server that makes frequent API calls to other upstream resources.
+By throttling requests at the source (that are likely to fail), this library makes your service resilient to unexpected traffic surges that are harder to deal with through conventional methods like auto-scaling and load-shedding at the destination server.
 
 The implementation of throttling used here is based on this chapter of [Google's SRE book](https://sre.google/sre-book/handling-overload/). I suggest you read through the chapter, especially the section 'Client-side throttling' for a better understanding of how this works.
 
