@@ -6,7 +6,7 @@ Read more at - https://sre.google/sre-book/handling-overload/
 */
 
 // A place to store the requests' totalCount and acceptance count using their urls as keys
-const requestsMap = new Map();
+export const requestsMap = new Map();
 
 // We need to keep the no. of requests and no. of accepted requests for the last [windowLength] seconds and disregard the rest
 // This is done here by using arrays of [windowLength] items, for every url, each representing the second that is [index] seconds away from head
@@ -25,8 +25,8 @@ interface RequestMapEntry {
 
 interface ThrottlerOptions {
   K: number;
-  windowLength: number;
-  cleanupFrequency: number;
+  windowLength: number; // seconds
+  cleanupFrequency: number; // seconds
 }
 
 // We need the 'time' value here for every item because a lot of these items could be outdated (out of our current window of interest),
@@ -45,22 +45,21 @@ const getTwoMinuteWindow = (now: Date, windowLength: number) => ({
 
 // Multiplier that determines aggressiveness of throttling
 // Higher value is less agressive, 2 is recommended
-// TODO improvement: Make this configurable from feature-flags
 const defaultK = 2;
 
 // The requestWindow is 2 minutes on the client and 10seconds on the server to allow for a quicker recovery
 const defaultWindowLength = 120;
 
-// Determines how often the requestsMap is cleaned
+// Determines how often requestsMap is cleaned
 const defaultCleanUpFreq = 60000;
 let cleanUpTaskId: NodeJS.Timer;
 
-const diffInSeconds = (a: Date, b: Date) => {
+export const diffInSeconds = (a: Date, b: Date) => {
   return Math.round((a.valueOf() - b.valueOf()) / 1000);
 };
 
 // Returns the sum of all [requests, acceptedRequests] in the last [windowLength] second window
-const getRequestValues = (
+export const getRequestValues = (
   reqWindow: RequestMapEntry,
   now: Date,
   windowLength: number
@@ -80,7 +79,7 @@ const getRequestValues = (
 // If the time we are updating for, represented by 'now', is out of the range of current head,
 // we replace the head with 'now' and set its values to the first item
 // If the time we are updating falls within the window of [head + winddowLength seconds] we update the item representing the current second
-const updateRequestValues = (
+export const updateRequestValues = (
   url: string,
   now: Date,
   windowLength: number,
@@ -88,24 +87,28 @@ const updateRequestValues = (
   incAccepts: boolean = false
 ) => {
   const requestWindow = requestsMap.get(url);
-  const { head, values: reqValues } = requestWindow;
-  const diffFromHead = diffInSeconds(now, head);
 
-  if (diffFromHead >= windowLength) {
-    reqValues[0] = {
-      requests: incRequests ? 1 : 0,
-      accepts: incAccepts ? 1 : 0,
-      time: now,
-    };
-    requestsMap.set(url, { head: now, values: reqValues });
-  } else {
-    const currentVal = reqValues[diffFromHead];
-    reqValues[diffFromHead] = {
-      requests: incRequests ? currentVal.requests + 1 : currentVal.requests,
-      accepts: incAccepts ? currentVal.accepts + 1 : currentVal.accepts,
-      time: now,
-    };
+  if (requestWindow) {
+    const { head, values: reqValues } = requestWindow;
+    const diffFromHead = diffInSeconds(now, head);
+
+    if (diffFromHead >= windowLength) {
+      reqValues[0] = {
+        requests: incRequests ? 1 : 0,
+        accepts: incAccepts ? 1 : 0,
+        time: now,
+      };
+      requestsMap.set(url, { head: now, values: reqValues });
+    } else {
+      const currentVal = reqValues[diffFromHead];
+      reqValues[diffFromHead] = {
+        requests: incRequests ? currentVal.requests + 1 : currentVal.requests,
+        accepts: incAccepts ? currentVal.accepts + 1 : currentVal.accepts,
+        time: now,
+      };
+    }
   }
+
   return;
 };
 
@@ -118,7 +121,7 @@ const cleanUpOldEntries = (windowLength: number) => () => {
   });
 };
 
-// Remove query params, and user specific path params to reduce the no. of unique keys in the requestsMap
+// Remove query params to reduce the no. of unique keys in the requestsMap
 const sanitizeUrl = (url: string) => {
   const urlMinusQuery = url.split('?')[0];
   return urlMinusQuery;
@@ -139,7 +142,7 @@ export const throttler = ({
     // Setup cleanup job to run every minute if it hasn't already been setup
     cleanUpTaskId = setInterval(
       cleanUpOldEntries(windowLength),
-      cleanupFrequency
+      cleanupFrequency * 1000
     );
   }
 
@@ -162,22 +165,21 @@ export const throttler = ({
 
   if (Math.random() < chanceOfThrottle) {
     // if the request is to be throttled return [shouldThrottle = true, identityFn]
-    return [true, (x: boolean) => x];
-  } else {
-    // if not, return [shouldThrottle = false, functionToUpdateRequestsCount]
-    return [
-      false,
-      (isSuccess: boolean) =>
-        updateRequestValues(url, now, windowLength, true, isSuccess),
-    ];
+    return [true, (x: boolean) => x] as const;
   }
+  // if not, return [shouldThrottle = false, functionToUpdateRequestsCount]
+  return [
+    false,
+    (isSuccess: boolean) =>
+      updateRequestValues(url, now, windowLength, true, isSuccess),
+  ] as const;
 };
 
 const throttledFetch = (throttleOptions: ThrottlerOptions) => (
   url: string,
-  options: object,
-  removeQueryParams = true,
-  applyThrottling: boolean = true
+  options: object = {},
+  applyThrottling: boolean = true,
+  removeQueryParams: boolean = true
 ) => {
   let callOnComplete: any;
   if (applyThrottling) {
@@ -194,7 +196,7 @@ const throttledFetch = (throttleOptions: ThrottlerOptions) => (
 
   return fetch(url, options)
     .then((res: Response) => {
-      res?.status < 400 ? callOnComplete(true) : callOnComplete(false);
+      res?.status < 500 ? callOnComplete(true) : callOnComplete(false);
       return res;
     })
     .catch((err: Error) => {
