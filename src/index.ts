@@ -200,6 +200,7 @@ const throttledFetch = (throttleOptions: ThrottlerOptions) => (
     );
 
     if (shouldThrottle) {
+      callOnComplete(false);
       return Promise.reject(new Error('The request was throttled.'));
     }
   }
@@ -208,16 +209,18 @@ const throttledFetch = (throttleOptions: ThrottlerOptions) => (
 
   return fetch(url, options)
     .then((res: Response) => {
-      res?.status < throttleThresholdCode
-        ? callOnComplete(true)
-        : callOnComplete(false);
+      if (applyThrottling) {
+        res?.status < throttleThresholdCode
+          ? callOnComplete(true)
+          : callOnComplete(false);
+      }
       return res;
     })
     .catch((err: Error) => {
       if (err.name === 'AbortError') {
         throw err;
       } else {
-        callOnComplete(false);
+        applyThrottling && callOnComplete(false);
         throw err;
       }
     });
