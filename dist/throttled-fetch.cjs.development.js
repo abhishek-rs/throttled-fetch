@@ -198,19 +198,23 @@ var throttledFetch = function throttledFetch(throttleOptions) {
       callOnComplete = _requestThrottler[1];
 
       if (shouldThrottle) {
+        callOnComplete(false);
         return Promise.reject(new Error('The request was throttled.'));
       }
     }
 
     var throttleThresholdCode = throttle400s ? 400 : 500;
     return fetch(url, options).then(function (res) {
-      (res == null ? void 0 : res.status) < throttleThresholdCode ? callOnComplete(true) : callOnComplete(false);
+      if (applyThrottling) {
+        (res == null ? void 0 : res.status) < throttleThresholdCode ? callOnComplete(true) : callOnComplete(false);
+      }
+
       return res;
     })["catch"](function (err) {
       if (err.name === 'AbortError') {
         throw err;
       } else {
-        callOnComplete(false);
+        applyThrottling && callOnComplete(false);
         throw err;
       }
     });
