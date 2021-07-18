@@ -144,9 +144,9 @@ const defaultOptions = {
 };
 
 export const throttler = ({
-  K,
-  windowLength,
-  cleanupFrequency,
+  K = defaultK,
+  windowLength = defaultWindowLength,
+  cleanupFrequency = defaultCleanUpFreq,
 }: ThrottlerOptions = defaultOptions) => (url: string) => {
   if (!cleanUpTaskId) {
     // Setup cleanup job to run every minute if it hasn't already been setup

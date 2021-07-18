@@ -54,5 +54,9 @@
   },
   "dependencies": {
     "cross-fetch": "^3.1.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/abhishek-rs/throttled-fetch.git"
   }
 }
