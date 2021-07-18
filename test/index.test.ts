@@ -75,7 +75,7 @@ describe('Request throttling tests:', () => {
       res = requestThrottler(url);
       res[1](true);
 
-      const requestWindow = requestsMap.get(url);
+      const requestWindow = requestsMap.get(url)!;
       const [requests, accepts] = getRequestValues(
         requestWindow,
         addTimeInSeconds(now, 20),
@@ -96,7 +96,7 @@ describe('Request throttling tests:', () => {
       res = requestThrottler(url);
       res[1](true);
 
-      const requestWindow = requestsMap.get(url);
+      const requestWindow = requestsMap.get(url)!;
       const [requests, accepts] = getRequestValues(
         requestWindow,
         addTimeInSeconds(now, 120),
@@ -120,7 +120,7 @@ describe('Request throttling tests:', () => {
         true,
         true
       );
-      const requestWindow = requestsMap.get(url);
+      const requestWindow = requestsMap.get(url)!;
       const [requests, accepts] = getRequestValues(
         requestWindow,
         addTimeInSeconds(now, 10),
@@ -143,7 +143,7 @@ describe('Request throttling tests:', () => {
         true,
         true
       );
-      const requestWindow = requestsMap.get(url);
+      const requestWindow = requestsMap.get(url)!;
       const [requests, accepts] = getRequestValues(
         requestWindow,
         addTimeInSeconds(now, 10),
