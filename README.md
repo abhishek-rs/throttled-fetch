@@ -1,6 +1,6 @@
 # throttled-fetch
 
-![npm-version](https://img.shields.io/npm/v/throttled-fetch?style=flat-square) ![bundle-size](https://img.shields.io/bundlephobia/min/throttled-fetch?style=flat-square) ![node-version](https://img.shields.io/node/v/throttled-fetch?style=flat-square)
+![npm-version](https://img.shields.io/npm/v/throttled-fetch?style=flat-square) ![bundle-size](https://img.shields.io/bundlephobia/min/throttled-fetch?style=flat-square) ![node-version](https://img.shields.io/node/v/throttled-fetch?style=flat-square) ![downloads](https://img.shields.io/npm/dm/throttled-fetch)
 
 A utility library that enhances fetch by providing adaptive client-side throttling of outgoing requests on your client app or server that makes frequent API calls to other upstream resources.
 By throttling requests at the source (that are likely to fail), this library makes your service resilient to unexpected traffic surges that are harder to deal with through conventional methods like auto-scaling and load-shedding at the destination server.
