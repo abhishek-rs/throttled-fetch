@@ -190,9 +190,16 @@ var throttledFetch = function throttledFetch(throttleOptions) {
 
     if (applyThrottling) {
       var shouldThrottle;
+      var urlString;
       var requestThrottler = throttler(throttleOptions);
 
-      var _requestThrottler = requestThrottler(removeQueryParams ? sanitizeUrl(url) : url);
+      if (url instanceof URL) {
+        urlString = url.href;
+      } else {
+        urlString = url;
+      }
+
+      var _requestThrottler = requestThrottler(removeQueryParams ? sanitizeUrl(urlString) : urlString);
 
       shouldThrottle = _requestThrottler[0];
       callOnComplete = _requestThrottler[1];

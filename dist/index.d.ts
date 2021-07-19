@@ -17,5 +17,5 @@ export declare const requestsMap: Map<string, RequestMapEntry>;
 export declare const getRequestValues: (reqWindow: RequestMapEntry, now: Date, windowLength: number) => number[];
 export declare const updateRequestValues: (url: string, now: Date, windowLength: number, incRequests?: boolean, incAccepts?: boolean) => void;
 export declare const throttler: ({ K, windowLength, cleanupFrequency, }?: ThrottlerOptions) => (url: string) => readonly [true, (x: boolean) => boolean] | readonly [false, (isSuccess: boolean) => void];
-declare const throttledFetch: (throttleOptions: ThrottlerOptions) => (url: string, options?: object, applyThrottling?: boolean, removeQueryParams?: boolean, throttle400s?: boolean) => any;
+declare const throttledFetch: (throttleOptions: ThrottlerOptions) => (url: string | URL, options?: object, applyThrottling?: boolean, removeQueryParams?: boolean, throttle400s?: boolean) => any;
 export default throttledFetch;

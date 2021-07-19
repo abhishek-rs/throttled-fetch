@@ -185,7 +185,7 @@ export const throttler = ({
 };
 
 const throttledFetch = (throttleOptions: ThrottlerOptions) => (
-  url: string,
+  url: string | URL,
   options: object = {},
   applyThrottling: boolean = true,
   removeQueryParams: boolean = true,
@@ -194,9 +194,16 @@ const throttledFetch = (throttleOptions: ThrottlerOptions) => (
   let callOnComplete: any;
   if (applyThrottling) {
     let shouldThrottle;
+    let urlString: string;
     const requestThrottler = throttler(throttleOptions);
+    if (url instanceof URL) {
+      urlString = url.href;
+    } else {
+      urlString = url;
+    }
+
     [shouldThrottle, callOnComplete] = requestThrottler(
-      removeQueryParams ? sanitizeUrl(url) : url
+      removeQueryParams ? sanitizeUrl(urlString) : urlString
     );
 
     if (shouldThrottle) {
