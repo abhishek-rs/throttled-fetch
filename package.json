@@ -58,5 +58,12 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/abhishek-rs/throttled-fetch.git"
-  }
+  },
+  "keywords": [
+    "fetch",
+    "throttling",
+    "resiliency",
+    "sre",
+    "scaling"
+  ]
 }
