@@ -28,6 +28,8 @@ The original idea for the implementation comes from the ['Handling Overload'](ht
 
 We use this probability to then either reject the request right away or let it through. As this is a rejection probability, it does not work like a conventional circuit-breaker that cuts off the flow of requests, but it lets a few random requests through from time to time to get the updated health status of the called service. So when the backend starts to cope with the load (either due to auto-scaling or any other methods) the rejection probability will start going down and the client slowly returns to normal functioning.
 
+[See a demo](https://flamboyant-raman-9ad6b0.netlify.app/)!
+
 ## Install
 
 ```bash
